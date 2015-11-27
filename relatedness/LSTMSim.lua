@@ -57,11 +57,11 @@ function LSTMSim:__init(config)
 
   -- share must only be called after getParameters, since this changes the
   -- location of the parameters
-  share_params(self.rlstm, self.llstm)
+  self.rlstm:share(self.llstm, 'weight', 'bias', 'gradWeight', 'gradBias')
   if self.structure == 'bilstm' then
     -- tying the forward and backward weights improves performance
-    share_params(self.llstm_b, self.llstm)
-    share_params(self.rlstm_b, self.llstm)
+    self.llstm_b:share(self.llstm, 'weight', 'bias', 'gradWeight', 'gradBias')
+    self.rlstm_b:share(self.llstm, 'weight', 'bias', 'gradWeight', 'gradBias')
   end
 end
 
