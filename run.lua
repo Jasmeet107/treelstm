@@ -4,7 +4,7 @@ require('.')
 local vocab = treelstm.Vocab('data/sst/vocab-cased.txt')
 
 -- load dataset
-local dataset = treelstm.read_serapis_dataset('data/serapis/', vocab)
+local dataset = treelstm.read_serapis_dataset('../sentiment/', vocab)
 printf('num data = %d\n', dataset.size)
 
 -- load model and predict dataset
