@@ -31,6 +31,26 @@ function treelstm.read_sentences(path, vocab)
   return sentences
 end
 
+function treelstm.read_serapis_trees(parent_path)
+  local parent_file = io.open(parent_path, 'r')
+  local count = 0
+  local trees = {}
+
+  while true do
+    local parents = parent_file:read()
+    if parents == nil then break end
+    parents = stringx.split(parents)
+    for i, p in ipairs(parents) do
+      parents[i] = tonumber(p)
+    end
+
+    count = count + 1
+    trees[count] = treelstm.read_serapis_tree(parents)
+  end
+  parent_file:close()
+  return trees
+end
+
 function treelstm.read_trees(parent_path, label_path)
   local parent_file = io.open(parent_path, 'r')
   local label_file
@@ -59,6 +79,47 @@ function treelstm.read_trees(parent_path, label_path)
   end
   parent_file:close()
   return trees
+end
+
+function treelstm.read_serapis_tree(parents)
+  local size = #parents
+  local trees = {}
+  local root
+  for i = 1, size do
+    if not trees[i] and parents[i] ~= -1 then
+      local idx = i
+      local prev = nil
+      while true do
+        local parent = parents[idx]
+        local tree = treelstm.Tree()
+        if prev ~= nil then
+          tree:add_child(prev)
+        end
+        trees[idx] = tree
+        tree.idx = idx
+        if trees[parent] ~= nil then
+          trees[parent]:add_child(tree)
+          break
+        elseif parent == 0 then
+          root = tree
+          break
+        else
+          prev = tree
+          idx = parent
+        end
+      end
+    end
+  end
+
+  -- index leaves
+  local leaf_idx = 1
+  for i = 1, size do
+    if trees[i].num_children == 0 then
+      trees[i].leaf_idx = leaf_idx
+      leaf_idx = leaf_idx + 1
+    end
+  end
+  return root
 end
 
 function treelstm.read_tree(parents, labels)
@@ -136,6 +197,23 @@ end
  Sentiment
 
 --]]
+
+function treelstm.read_serapis_dataset(dir, vocab)
+  local dataset = {}
+  dataset.vocab = vocab
+  dataset.fine_grained = false
+  local trees = treelstm.read_serapis_trees(dir .. 'parents.txt')
+  for _, tree in ipairs(trees) do
+    set_spans(tree)
+  end
+
+  local sents = treelstm.read_sentences(dir .. 'sents.txt', vocab)
+  dataset.trees = trees
+  dataset.sents = sents
+
+  dataset.size = #dataset.trees
+  return dataset
+end
 
 function treelstm.read_sentiment_dataset(dir, vocab, fine_grained)
   local dataset = {}
