@@ -130,8 +130,8 @@ if __name__ == '__main__':
     lib_dir = os.path.join(base_dir, 'lib')
 
     # download dependencies
-    download_tagger(lib_dir)
-    download_parser(lib_dir)
+    # download_tagger(lib_dir)
+    # download_parser(lib_dir)
     download_wordvecs(wordvec_dir)
-    download_sick(sick_dir)
+    # download_sick(sick_dir)
     download_sst(sst_dir)

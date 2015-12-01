@@ -1,6 +1,6 @@
 #!/bin/bash
 python2.7 scripts/download.py
-python2.7 scripts/preprocess-sick.py
+# python2.7 scripts/preprocess-sick.py
 python2.7 scripts/preprocess-sst.py
 
 glove_dir="data/glove"
