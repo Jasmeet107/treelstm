@@ -100,14 +100,20 @@ function TreeLSTMSentiment:predict(tree, sent)
   if self.fine_grained then
     prediction = argmax(output)
   else
-    prediction = (output[1] > output[3]) and 1 or 3
+    -- prediction = (output[1] > output[3]) and 1 or 3
+    prediction = output
   end
   self.treelstm:clean(tree)
   return prediction
 end
 
 function TreeLSTMSentiment:predict_dataset(dataset)
-  local predictions = torch.Tensor(dataset.size)
+  local predictions
+  if self.fine_grained then
+    predictions = torch.Tensor(dataset.size)
+  else
+    predictions = torch.Tensor(dataset.size, 3)
+  end
   for i = 1, dataset.size do
     xlua.progress(i, dataset.size)
     predictions[i] = self:predict(dataset.trees[i], dataset.sents[i])
